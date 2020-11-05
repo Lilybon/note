@@ -194,7 +194,7 @@ loginButton.onClick = function () {
 const bindEvent = function () {
   const div1 = document.getElementById('div1')
   div1.onClick = function () {
-      console.log('綁定完成')
+    console.log('綁定完成')
   }
   div1.style.display = 'none'
   document.body.appendChild(div1)
