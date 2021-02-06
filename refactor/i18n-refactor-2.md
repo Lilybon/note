@@ -1,12 +1,12 @@
 # i18n 重構(2) - 尋找可替換的 key
 
-經過(1)拉平 i18n 的物件後
+經過(1)拉平 i18n 的物件後<br/>
 我們需要在合併專案底下的 local JSON 跟 npm JSON 前做以下前置處理：
 1. 抓出 local JSON 跟 npm JSON 重複命名的 key 值並給予 hash ( ex : xxx_1 、 xxx_2 ) 區分。
 這個很簡單就不對該步驟多做贅述了
 2. **抓出專案 locale 底下有哪些 key 可以被npm locale 取代。**
 
-我們有三個語系 cn 、 en 、 vn 的 JSON 需要做處理
+我們有三個語系 cn 、 en 、 vn 的 JSON 需要做處理<br/>
 好險只有三包而且現在 JSON 還不夠肥大
 
 ![怕](https://i.imgur.com/Cc7wt8I.png =400x)
@@ -59,8 +59,8 @@ console.log(results)
 
 ![結果](https://i.imgur.com/juDI8kM.png)
 
-雖然寫得真是夠隨意
-但至少不用再勞心勞力找重複的 key 慢慢刪掉
+雖然寫得真是夠隨意<br/>
+但至少不用再勞心勞力找重複的 key 慢慢刪掉<br/>
 蒸蚌
 
 
