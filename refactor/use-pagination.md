@@ -144,7 +144,7 @@ export default function (
 import usePagination from '@/hooks/usePagination'
 export default {
   setup () {
-    const { data, loading, refresh, limit, currentPage, condiitons } = usePagination({
+    const { data, loading, refresh, limit, currentPage, conditions } = usePagination({
       fetcher: () => axios.get('xxx'),
       conditions: {
         createdAt: ['2021-03-29', '2021-03-30']
@@ -166,7 +166,7 @@ export default {
       refresh,
       limit,
       currentPage,
-      condiitons
+      conditions
     }
   }
 }
