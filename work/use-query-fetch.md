@@ -51,7 +51,7 @@ import {
   useFetch,
   watch,
 } from "@nuxtjs/composition-api";
-import { isSameObj } from "~/utils";
+import { isSameObj, purifyObj } from "~/utils";
 
 export default function ({
   setupConditions,
@@ -95,24 +95,32 @@ export default function ({
     afterFetch(data);
   });
   const updateRouteQuery = (newQuery) => {
-    // 避免回流觸發無意義的 router push
-    if (isSameObj(newQuery, query.value)) return;
+    // 避免回流觸發無意義的 router push 和 url 髒掉，ex: xxx.com?a=&b=&c=&d=wtf
+    const purifyNewQuery = purifyObj(newQuery);
+    const purifyOldQuery = purifyObj(query.value);
+    if (isSameObj(purifyNewQuery, purifyOldQuery)) return;
     router.push({
       name: router.currentRoute.name,
-      query: newQuery,
+      query: purifyNewQuery,
     });
   };
 
   watch(
-    [() => ({ ...conditions }), page],
-    ([newConditions, newPage]) => {
+    () => ({ ...conditions }),
+    (newConditions) => {
       updateRouteQuery({
         ...newConditions,
-        page: newPage,
+        page: 1,
       });
     },
     { deep: true }
   );
+  watch(page, (newPage) => {
+    updateRouteQuery({
+      ...conditions,
+      page: newPage,
+    });
+  });
   watch(query, (newQuery) => {
     // 考慮直接點選 nuxt-link 時要回流更新 conditions 跟 page
     const { page: parsePage, ...parseConditions } = newQuery;
