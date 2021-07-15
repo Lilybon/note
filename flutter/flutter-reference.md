@@ -9,5 +9,6 @@
 - [Getx - 如何使用状态管理数据](https://blog.csdn.net/qq_36407748/article/details/115182323)
 - [GetX - Sample TabBar](https://gist.github.com/eduardoflorence/4fdf7d0f38b56adb3e4929e132a98e58)
 - [GetX - Sample GetNotifier](https://gist.github.com/eduardoflorence/07e1049583b8e723e69e86f1fff2156e)
+- [How to use generics and list of generics with json serialization in Dart?](https://stackoverflow.com/questions/55306746/how-to-use-generics-and-list-of-generics-with-json-serialization-in-dart) 
 
 ###### tags: `Flutter`
