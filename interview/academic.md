@@ -30,6 +30,8 @@
   - [如何優化像素管道的 Styles 和 Layout？](https://cythilya.github.io/2018/07/19/styles-and-layout/) (1)
   - [Layout thrashing cheatsheet](https://devhints.io/layout-thrashing) (1)
 - Code Splitting
+  - [Webpack - Code Splitting
+    ](https://webpack.js.org/guides/code-splitting/#root) (1)
 - Dynamic Import
 - Lazy Load
 - Webpack Bundle Analyzer
@@ -41,6 +43,8 @@
   - preload
   - preconnect
   - dns-prefetch
+  - [Preload, Prefetch And Priorities in Chrome](https://medium.com/reloading/preload-prefetch-and-priorities-in-chrome-776165961bbf) (0)
+  - [[教學] 深入淺出 Preload, Prefetch 和 Preconnect：三種加快網頁載入速度的 Resource Hint 技巧](https://shubo.io/preload-prefetch-preconnect/) (1)
 - CDN & Cache
   - [Web 前端性能优化之 CDN](https://www.cnblogs.com/wasbg/p/10921373.html) (1)
   - Cloudflare
@@ -54,20 +58,47 @@
   - [Brotli vs Gzip Compression. How we improved our latency by 37%](https://medium.com/oyotech/how-brotli-compression-gave-us-37-latency-improvement-14d41e50fee4) (0)
   - [简单聊聊 GZIP 的压缩原理与日常应用](https://juejin.cn/post/6844903661575880717) (0)
 - [今晚，我想來點 Web 前端效能優化大補帖！](https://medium.com/starbugs/%E4%BB%8A%E6%99%9A-%E6%88%91%E6%83%B3%E4%BE%86%E9%BB%9E-web-%E5%89%8D%E7%AB%AF%E6%95%88%E8%83%BD%E5%84%AA%E5%8C%96%E5%A4%A7%E8%A3%9C%E5%B8%96-e1a5805c1ca2) (0)
+- [我是如何將網頁效能提升 5 倍的 — 構建優化篇](https://www.mdeditor.tw/pl/glmW/zh-tw) (1)
 
 ### 前端框架(須了解主流框架實作方式)
 
 - React
+  - SPA
+  - Virtual DOM
   - Hooks
+    - useState
+    - useEffect
+    - useContext
+    - useRef
+  - Library
+    - SWR
+  - xxx
 - Next
-  - SSR 原理
+  - SSR
+  - SSG
+  - getStaticPaths
+  - getStaticProps
+  - getServerSideProps
 - Vue
+  - SPA
+  - Virtual DOM
   - Composition API
-  - Watch
-  - Computed
-  - NextTick
+    - Ref
+    - Reactive
+    - Watch
+    - Computed
+    - NextTick
+  - Library
+    - Vuex
+    - Vue-Router
+    - Vue-I18n
+  - xxx
 - Nuxt
-  - SSR 原理
+  - SSR
+  - SSG
+  - asyncData
+  - fetch
+  - middleware
 
 ### App
 
@@ -82,9 +113,17 @@
   - [Iframe 跨域傳值在 iOS 失效的解法﹍利用網址 + localStorage + cookie 並用](https://www.wfublog.com/2017/12/iframe-cross-domain-ios-localstorage-cookie-url.html) (1)
 - Map Area
 
+### CSS3
+
+- [當 flexbox 遇到 height: 100%](https://medium.com/@littleDog/%E7%95%B6flexbox%E9%81%87%E5%88%B0height-100-242703fcaab6) (1)
+- [overflow: auto not working in Safari OSX](https://stackoverflow.com/questions/32971425/overflow-auto-not-working-in-safari-osx) (1)
+- [Chrome / Safari not filling 100% height of flex parent
+  ](https://stackoverflow.com/questions/33636796/chrome-safari-not-filling-100-height-of-flex-parent) (1)
+
 ### 通訊協議
 
 - HTTP、HTTPS
+  - [都 2019 年了，还问 GET 和 POST 的区别](https://blog.fundebug.com/2019/02/22/compare-http-method-get-and-post/) (1)
 - WebSocket
 - WebRTC
 
@@ -113,7 +152,13 @@
 ### Side-Project
 
 - GoChat (Nuxt + Golang)
-- N-hxntxi (Flutter + Golang)
+- nHxntxi (Flutter + Golang)
+
+### 監控
+
+- GTM
+  - [How to track Single Page Applications with Google Tag Manager](https://dataenthusiast.it/english-version/how-to-track-single-page-application-with-google-tag-manager/) (0)
+- xxx
 
 ### 其他
 
