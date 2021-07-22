@@ -19,9 +19,9 @@
      limit: 20,
      offset: 0,
      // filter 欄位
-     createdAt: ["2020-03-30", "2020-03-31"],
-     transaction_type: "",
-   });
+     createdAt: ['2020-03-30', '2020-03-31'],
+     transaction_type: '',
+   })
    ```
 4. 決定寫一個代理去幫忙 vue-condition-watcher 判斷上面這件事，**核心的思想是把 vue-condition-watcher 的 conditions 解構失去 reactive 特性再重新用 ref 跟 reactive 包裝**，這樣決定何時更新 conditions 的主導權就會重回我們手上。
 
@@ -30,28 +30,28 @@
 export default function (
   config,
   queryOptions = {
-    sync: "router",
+    sync: 'router',
     /*
      * 我們不能讓使用者可以透過 route query 更改 limit
      * 因為可能會有瘋子一次打個超大數字直接讓後端爆炸
      */
-    ignore: ["limit"],
+    ignore: ['limit'],
   },
   limit = 20
 ) {
-  const { proxy } = getCurrentInstance();
-  config.conditions.offset = +proxy.$route.query.offset || 0;
-  config.defaultParams = config.defaultParams || {};
-  config.defaultParams.limit = limit;
-  queryOptions.sync = queryOptions.sync || "router";
-  if (!queryOptions.ignore.includes("limit")) queryOptions.ignore.push("limit");
+  const { proxy } = getCurrentInstance()
+  config.conditions.offset = +proxy.$route.query.offset || 0
+  config.defaultParams = config.defaultParams || {}
+  config.defaultParams.limit = limit
+  queryOptions.sync = queryOptions.sync || 'router'
+  if (!queryOptions.ignore.includes('limit')) queryOptions.ignore.push('limit')
 
   const {
     conditions: watcherConditions,
     data,
     loading,
     refresh,
-  } = useConditionWatcher(config, { sync, ignore });
+  } = useConditionWatcher(config, { sync, ignore })
 
   /*
    * 核心 I：
@@ -62,9 +62,9 @@ export default function (
     offset: parseOffset,
     limit: parseLimit,
     ...parseConditions
-  } = watcherConditions;
-  const offset = ref(parseOffset);
-  const conditions = reactive(parseConditions);
+  } = watcherConditions
+  const offset = ref(parseOffset)
+  const conditions = reactive(parseConditions)
 
   /*
    * 頁碼相對於 offset 和 limit 的計算關係
@@ -73,29 +73,29 @@ export default function (
   const currentPage = computed({
     get: () => offset.value / limit + 1,
     set: (page) => {
-      offset.value = (page - 1) * limit;
+      offset.value = (page - 1) * limit
     },
-  });
+  })
 
   /*
    * 核心 II：
    * 由這些代理變數去改變實際的 watcherConditions 觸發打請求
    */
   watch(offset, (newOffset) => {
-    watcherConditions.offset = newOffset;
-  });
+    watcherConditions.offset = newOffset
+  })
 
   watch(
     conditions,
     (newConditions) => {
       Object.keys(newConditions).forEach((key) => {
-        watcherConditions[key] = newConditions[key];
-      });
-      watcherConditions.offset = 0;
-      offset.value = 0;
+        watcherConditions[key] = newConditions[key]
+      })
+      watcherConditions.offset = 0
+      offset.value = 0
     },
     { deep: true }
-  );
+  )
 
   return {
     data,
@@ -105,7 +105,7 @@ export default function (
     offset,
     conditions,
     currentPage,
-  };
+  }
 }
 ```
 

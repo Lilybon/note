@@ -8,19 +8,19 @@
 
    ```javascript
    function sum(...args) {
-     let result = 0;
-     return helper(...args);
+     let result = 0
+     return helper(...args)
      function helper(...values) {
-       for (let value of values) result += +value;
-       return values.length ? helper : result;
+       for (let value of values) result += +value
+       return values.length ? helper : result
      }
    }
 
-   sum(); // return 0
-   sum(1)(); // return 1
-   sum(1)(1)(1)(); // return 3
-   sum(1)(1, 1, 1, 1)(1)(); // return 6
-   sum(1); // return a function
+   sum() // return 0
+   sum(1)() // return 1
+   sum(1)(1)(1)() // return 3
+   sum(1)(1, 1, 1, 1)(1)() // return 6
+   sum(1) // return a function
    // sum(1)...(1, 1, 1, ...1)    // return a function
    ```
 
@@ -30,21 +30,21 @@
 
    ```javascript
    function triplets(d, t) {
-     let result = 0;
-     helper(0, 0, 0);
-     return result;
+     let result = 0
+     helper(0, 0, 0)
+     return result
      function helper(startIndex, sum, count) {
-       if (sum > t) return;
-       if (count === 3) result++;
+       if (sum > t) return
+       if (count === 3) result++
        else {
          for (let i = startIndex; i < d.length; i++) {
-           helper(i + 1, sum + d[i], count + 1);
+           helper(i + 1, sum + d[i], count + 1)
          }
        }
      }
    }
 
-   triplets([1, 2, 3, 4, 5], 8); // return 4
+   triplets([1, 2, 3, 4, 5], 8) // return 4
    ```
 
 3. Fisher–Yates Shuffle
@@ -69,23 +69,23 @@
    ```javascript
    function solution(s) {
      let sum = 0,
-       count = 0;
+       count = 0
      for (let char of s) {
-       sum += char;
+       sum += char
      }
-     if (sum % 3 === 0) count++;
+     if (sum % 3 === 0) count++
      for (let char of s) {
-       let tmpSum = sum - char;
+       let tmpSum = sum - char
        for (let i = 0; i <= 9; i++) {
-         if (String(i) !== char && (tmpSum + i) % 3 === 0) count++;
+         if (String(i) !== char && (tmpSum + i) % 3 === 0) count++
        }
      }
-     return count;
+     return count
    }
 
-   solution("23"); // return 7
-   solution("0081"); // return 11
-   solution("022"); // return 9
+   solution('23') // return 7
+   solution('0081') // return 11
+   solution('022') // return 9
    ```
 
 5. TrxndMxcrx Codility 2 <br />

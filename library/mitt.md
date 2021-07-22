@@ -14,35 +14,35 @@
 export type EventHandlerMap = Map<
   EventType,
   EventHandlerList | WildCardEventHandlerList
->;
+>
 
 export default function mitt(all?: EventHandlerMap): Emitter {
-  all = all || new Map();
+  all = all || new Map()
   return {
     all,
     // ...
-  };
+  }
 }
 ```
 
 1. `all` 的 key 為 string 或 symbol。
 
 ```typescript
-export type EventType = string | symbol;
+export type EventType = string | symbol
 ```
 
 2. `all` 的 value 為儲存 handler 的陣列。
 
 ```typescript
-export type EventHandlerList = Array<Handler>;
-export type WildCardEventHandlerList = Array<WildcardHandler>;
+export type EventHandlerList = Array<Handler>
+export type WildCardEventHandlerList = Array<WildcardHandler>
 ```
 
 3. hanlder 分成兩種，使用者須依照文檔對 eventType 綁事件和呼叫事件。
 
 ```typescript
-export type Handler<T = any> = (event?: T) => void;
-export type WildcardHandler = (type: EventType, event?: any) => void;
+export type Handler<T = any> = (event?: T) => void
+export type WildcardHandler = (type: EventType, event?: any) => void
 ```
 
 看完的 OS：
@@ -76,40 +76,40 @@ export type WildcardHandler = (type: EventType, event?: any) => void;
 
 ```javascript
 // @/utils/mitt
-import mitt from "mitt";
-export const mittBus = mitt();
+import mitt from 'mitt'
+export const mittBus = mitt()
 ```
 
 2. 設計 hook 。
 
 ```javascript
 // @/hooks/useMitt
-import { mittBus } from "@/utils/mitt";
-import { onUnmounted } from "@vue/composition-api";
+import { mittBus } from '@/utils/mitt'
+import { onUnmounted } from '@vue/composition-api'
 
 export default function useMitt() {
   // 用 Set 記憶組件內的局部事件 key
-  const set = new Set();
+  const set = new Set()
 
   // 組件不用時註銷不再需要監聽局部事件
   onUnmounted(() => {
-    [...set.keys()].forEach((eventType) => {
-      mittUnlisten(eventType);
-    });
-  });
+    ;[...set.keys()].forEach((eventType) => {
+      mittUnlisten(eventType)
+    })
+  })
 
   function mittListen(eventType, handler) {
-    set.add(eventType);
-    mittBus.on(eventType, handler);
+    set.add(eventType)
+    mittBus.on(eventType, handler)
   }
 
   function mittUnlisten(eventType) {
-    set.delete(eventType);
-    mittBus.off(eventType);
+    set.delete(eventType)
+    mittBus.off(eventType)
   }
 
   function mittLaunch(eventType, payload) {
-    mittBus.emit(eventType, payload);
+    mittBus.emit(eventType, payload)
   }
 
   return {
@@ -117,7 +117,7 @@ export default function useMitt() {
     mittListen,
     mittUnlisten,
     mittLaunch,
-  };
+  }
 }
 ```
 

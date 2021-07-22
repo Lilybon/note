@@ -2,11 +2,10 @@
 tags: 筆記
 ---
 
-JavaScript 設計模式與開發實踐
-===
+# JavaScript 設計模式與開發實踐
 
-設計模式
----
+## 設計模式
+
 - [單例模式(Singleton)](/@lilybon/singleton-pattern)
 - [策略模式(Strategy)](/@lilybon/strategy-pattern)
 - [代理模式(Proxy)](/@lilybon/proxy-pattern)

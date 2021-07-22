@@ -6,20 +6,20 @@
 
 ```javascript
 // index.js
-const express = require("express");
-const app = express();
+const express = require('express')
+const app = express()
 
 function doWork(duration) {
-  const start = Date.now();
+  const start = Date.now()
   while (Date.now() - start < duration) {}
 }
 
-app.get("/", (req, res) => {
-  doWork(5000);
-  res.send("Hi there");
-});
+app.get('/', (req, res) => {
+  doWork(5000)
+  res.send('Hi there')
+})
 
-app.listen(3000);
+app.listen(3000)
 ```
 
 ### Benchmarking Server Performance
@@ -39,26 +39,26 @@ ab -c 50 -n 500 localhost:3000/fast
 ```javascript
 // index.js
 // 一個 child 有一個 thread 可使用。
-process.env.UV_THREADPOOL_SIZE = 1;
-const cluster = require("cluster");
+process.env.UV_THREADPOOL_SIZE = 1
+const cluster = require('cluster')
 
 // index.js 是在 master 模式下被執行的嗎?
 if (cluster.isMaster) {
   // 觸發 index.js **再次**被執行，但是在 child 模式下被執行。
-  cluster.fork();
+  cluster.fork()
 } else {
   // child 模式，這邊負責當 server ，除此之外沒處理別的事情。
-  const express = require("express");
-  const crypto = require("crypto");
-  const app = express();
+  const express = require('express')
+  const crypto = require('crypto')
+  const app = express()
 
-  app.get("/", (req, res) => {
-    crypto.pbkdf2("a", "b", 100000, 512, "sha512", () => {
-      res.send("Hi there");
-    });
-  });
+  app.get('/', (req, res) => {
+    crypto.pbkdf2('a', 'b', 100000, 512, 'sha512', () => {
+      res.send('Hi there')
+    })
+  })
 
-  app.listen(3000);
+  app.listen(3000)
 }
 ```
 
@@ -77,17 +77,17 @@ yarn global add pm2
 
 ```javascript
 // index.js
-const express = require("express");
-const crypto = require("crypto");
-const app = express();
+const express = require('express')
+const crypto = require('crypto')
+const app = express()
 
-app.get("/", (req, res) => {
-  crypto.pbkdf2("a", "b", 100000, 512, "sha512", () => {
-    res.send("Hi there");
-  });
-});
+app.get('/', (req, res) => {
+  crypto.pbkdf2('a', 'b', 100000, 512, 'sha512', () => {
+    res.send('Hi there')
+  })
+})
 
-app.listen(3000);
+app.listen(3000)
 ```
 
 ```bash
@@ -114,12 +114,12 @@ yarn add webworker-thread
 ```
 
 ```javascript
-const express = require("express");
-const crypto = require("crypto");
-const app = express();
-const Worker = require("webworker-threads").Worker;
+const express = require('express')
+const crypto = require('crypto')
+const app = express()
+const Worker = require('webworker-threads').Worker
 
-app.get("/", (req, res) => {
+app.get('/', (req, res) => {
   /*
    * 注意!
    * 1. 這個 worker 的 callback 不要牽涉到外面 scope 的變數，
@@ -129,24 +129,24 @@ app.get("/", (req, res) => {
    * */
   const worker = new Worker(function () {
     this.onmessage = function () {
-      let counter = 0;
+      let counter = 0
       while (counter < 1e9) {
-        counter++;
+        counter++
       }
 
-      postMessage(counter);
-    };
-  });
+      postMessage(counter)
+    }
+  })
 
   worker.onmessage = function (message) {
-    console.log(message.data);
-    res.send("" + message.data);
-  };
+    console.log(message.data)
+    res.send('' + message.data)
+  }
 
-  worker.postMessage();
-});
+  worker.postMessage()
+})
 
-app.listen(3000);
+app.listen(3000)
 ```
 
 ###### tags: `Node JS: Advanced Concepts` `NodeJS` `JavaScript`

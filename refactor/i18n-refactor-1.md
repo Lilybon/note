@@ -10,28 +10,28 @@
 因為拉平比較不用人力就決定統一將命名規則改成 plain JSON
 
 流程如下：
+
 1. 遞迴拉平嵌套 property
 2. 排序 property
 3. property 前加 prefix
 4. 匯出 JSON 字串
 
 ```javascript
-function flattenObj (obj) {
-   const result = {}
-   helper(obj)
-   return result
-   function helper(obj = {}, prefix = '') {
-     for (let key in obj) {
-       let nextPrefix = (prefix ? prefix + '_' : '') + key
-       if (typeof obj[key] !== 'object') result[nextPrefix] = obj[key]
-       else helper(obj[key], nextPrefix)
-     }
-   }
+function flattenObj(obj) {
+  const result = {}
+  helper(obj)
+  return result
+  function helper(obj = {}, prefix = '') {
+    for (let key in obj) {
+      let nextPrefix = (prefix ? prefix + '_' : '') + key
+      if (typeof obj[key] !== 'object') result[nextPrefix] = obj[key]
+      else helper(obj[key], nextPrefix)
+    }
+  }
 }
 
-function sortObj (obj) {
-  return Object
-    .keys(obj)
+function sortObj(obj) {
+  return Object.keys(obj)
     .sort()
     .reduce((acc, key) => {
       acc[key] = obj[key]
@@ -39,38 +39,35 @@ function sortObj (obj) {
     }, {})
 }
 
-function markPrefix (prefix) {
+function markPrefix(prefix) {
   return function (obj) {
-    return Object
-      .keys(obj)
-      .reduce((acc, key) => {
-        acc[prefix + key] = obj[key]
-        return acc
-      }, {})
+    return Object.keys(obj).reduce((acc, key) => {
+      acc[prefix + key] = obj[key]
+      return acc
+    }, {})
   }
 }
 
-function formatJSONString (obj) {
-  return [
-    flattenObj,
-    sortObj,
-    markPrefix('prefix:'),
-    JSON.stringify
-   ].reduce((acc, cb) => cb(acc), obj)
+function formatJSONString(obj) {
+  return [flattenObj, sortObj, markPrefix('prefix:'), JSON.stringify].reduce(
+    (acc, cb) => cb(acc),
+    obj
+  )
 }
 
 // example
 formatJSONString({
   a: {
     b: {
-      c: 123
+      c: 123,
     },
-    d: 456
+    d: 456,
   },
-  f: true
+  f: true,
 })
 // {"prefix:a_b_c":123,"prefix:a_d":456,"prefix:f":true}
 ```
+
 後來想想 makePrefix 有點冗就拿掉了
 
 ###### tags: `Refactor` `JavaScript` `i18n`

@@ -5,10 +5,10 @@
 
 - [Bottom overloaded by 213 pixels in flutter](https://stackoverflow.com/questions/51774252/bottom-overloaded-by-213-pixels-in-flutter)
 - [Introducing Property Change Notifier](https://medium.com/flutter-nyc/introducing-property-change-notifier-10e6d27080a3)
-- [Flutter底部tab切换保持页面状态的几种方法](https://cloud.tencent.com/developer/article/1507094)
+- [Flutter 底部 tab 切换保持页面状态的几种方法](https://cloud.tencent.com/developer/article/1507094)
 - [Getx - 如何使用状态管理数据](https://blog.csdn.net/qq_36407748/article/details/115182323)
 - [GetX - Sample TabBar](https://gist.github.com/eduardoflorence/4fdf7d0f38b56adb3e4929e132a98e58)
 - [GetX - Sample GetNotifier](https://gist.github.com/eduardoflorence/07e1049583b8e723e69e86f1fff2156e)
-- [How to use generics and list of generics with json serialization in Dart?](https://stackoverflow.com/questions/55306746/how-to-use-generics-and-list-of-generics-with-json-serialization-in-dart) 
+- [How to use generics and list of generics with json serialization in Dart?](https://stackoverflow.com/questions/55306746/how-to-use-generics-and-list-of-generics-with-json-serialization-in-dart)
 
 ###### tags: `Flutter`

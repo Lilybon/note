@@ -7,35 +7,35 @@
 1. **我們撰寫的 JavaScript**
 
 ```javascript
-app.get("/", (req, res) => {
-  crypto.pbkdf2("a", "b", 100000, 512, "sha512", () => {
-    res.send("Hello World");
-  });
-});
+app.get('/', (req, res) => {
+  crypto.pbkdf2('a', 'b', 100000, 512, 'sha512', () => {
+    res.send('Hello World')
+  })
+})
 ```
 
 2. **lib 的原始碼** (JavaScript 函式庫)
 
 ```javascript
 // lib/internal/crypto/pbkdf2.js
-const { validateCallback } = require("internal/validators");
+const { validateCallback } = require('internal/validators')
 
 function pbkdf2(password, salt, iterations, keylen, digest, callback) {
   // 檢驗參數是否符合格式
-  if (typeof digest === "function") {
-    callback = digest;
-    digest = undefined;
+  if (typeof digest === 'function') {
+    callback = digest
+    digest = undefined
   }
 
-  ({ password, salt, iterations, keylen, digest } = check(
+  ;({ password, salt, iterations, keylen, digest } = check(
     password,
     salt,
     iterations,
     keylen,
     digest
-  ));
+  ))
 
-  validateCallback(callback);
+  validateCallback(callback)
 
   // 透過 internalBinding 呼叫 C++ 函式庫
   // ...
@@ -46,7 +46,7 @@ function pbkdf2(password, salt, iterations, keylen, digest, callback) {
 
 ```javascript
 // lib/internal/crypto/pbkdf2.js
-const { PBKDF2Job } = internalBinding("crypto");
+const { PBKDF2Job } = internalBinding('crypto')
 
 function pbkdf2(password, salt, iterations, keylen, digest, callback) {
   // 檢驗參數是否符合格式
@@ -60,18 +60,18 @@ function pbkdf2(password, salt, iterations, keylen, digest, callback) {
     iterations,
     keylen,
     digest
-  );
+  )
 
-  const encoding = getDefaultEncoding();
+  const encoding = getDefaultEncoding()
   job.ondone = (err, result) => {
-    if (err !== undefined) return FunctionPrototypeCall(callback, job, err);
-    const buf = Buffer.from(result);
-    if (encoding === "buffer")
-      return FunctionPrototypeCall(callback, job, null, buf);
-    FunctionPrototypeCall(callback, job, null, buf.toString(encoding));
-  };
+    if (err !== undefined) return FunctionPrototypeCall(callback, job, err)
+    const buf = Buffer.from(result)
+    if (encoding === 'buffer')
+      return FunctionPrototypeCall(callback, job, null, buf)
+    FunctionPrototypeCall(callback, job, null, buf.toString(encoding))
+  }
 
-  job.run();
+  job.run()
 }
 ```
 
@@ -84,12 +84,12 @@ function pbkdf2(password, salt, iterations, keylen, digest, callback) {
 ### Node Event Loop
 
 ```javascript
-const pendingTimers = [];
-const pendingOSTasks = [];
-const pendingOperations = [];
+const pendingTimers = []
+const pendingOSTasks = []
+const pendingOperations = []
 
 // New timers, tasks, operations 會在 myFile 被執行時被記錄下來
-myFile.runContents();
+myFile.runContents()
 
 function shouldContinue() {
   /*
@@ -99,7 +99,7 @@ function shouldContinue() {
    * */
   return (
     pendingTimers.length || pendingOSTasks.length || pendingOperations.length
-  );
+  )
 }
 
 // 整段程式在一個'tick'被執行的情境
@@ -127,29 +127,29 @@ Node **Event Loop** 是單線程。
 
 ```javascript
 // 調整 libuv thread pool 大小
-process.env.UV_THREADPOOL_SIZE = 2;
+process.env.UV_THREADPOOL_SIZE = 2
 
-const crypto = require("crypto");
+const crypto = require('crypto')
 
-crypto.pbkdf2("a", "b", 100000, 512, "sha512", () => {
-  console.log("1:", Date.now() - start);
-});
+crypto.pbkdf2('a', 'b', 100000, 512, 'sha512', () => {
+  console.log('1:', Date.now() - start)
+})
 
-crypto.pbkdf2("a", "b", 100000, 512, "sha512", () => {
-  console.log("2:", Date.now() - start);
-});
+crypto.pbkdf2('a', 'b', 100000, 512, 'sha512', () => {
+  console.log('2:', Date.now() - start)
+})
 
-crypto.pbkdf2("a", "b", 100000, 512, "sha512", () => {
-  console.log("3:", Date.now() - start);
-});
+crypto.pbkdf2('a', 'b', 100000, 512, 'sha512', () => {
+  console.log('3:', Date.now() - start)
+})
 
-crypto.pbkdf2("a", "b", 100000, 512, "sha512", () => {
-  console.log("4:", Date.now() - start);
-});
+crypto.pbkdf2('a', 'b', 100000, 512, 'sha512', () => {
+  console.log('4:', Date.now() - start)
+})
 
-crypto.pbkdf2("a", "b", 100000, 512, "sha512", () => {
-  console.log("5:", Date.now() - start);
-});
+crypto.pbkdf2('a', 'b', 100000, 512, 'sha512', () => {
+  console.log('5:', Date.now() - start)
+})
 ```
 
 結果可能會隨你電腦 CPU 的核心數、 **libuv thread pool** 的大小而影響，不過重要的是 Node Event Loop 指派任務是單線程，但是底層的 C++ 被執行則可能是多線程。

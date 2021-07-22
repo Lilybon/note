@@ -19,27 +19,27 @@
 ```javascript
 class Coffee {
   boilWater() {
-    console.log("把水煮沸");
+    console.log('把水煮沸')
   }
   brewCoffeeGriends() {
-    console.log("用沸水沖泡咖啡");
+    console.log('用沸水沖泡咖啡')
   }
   pourInCup() {
-    console.log("把咖啡倒進杯子");
+    console.log('把咖啡倒進杯子')
   }
   addSugarAndMilk() {
-    console.log("加糖和牛奶");
+    console.log('加糖和牛奶')
   }
   init() {
-    this.boilWater();
-    this.brewCoffeeGriends();
-    this.pourInCup();
-    this.addSugarAndMilk();
+    this.boilWater()
+    this.brewCoffeeGriends()
+    this.pourInCup()
+    this.addSugarAndMilk()
   }
 }
 
-const coffee = new Coffee();
-coffee.init();
+const coffee = new Coffee()
+coffee.init()
 ```
 
 下面是一個茶類別 `Tea`：
@@ -47,27 +47,27 @@ coffee.init();
 ```javascript
 class Tea {
   boilWater() {
-    console.log("把水煮沸");
+    console.log('把水煮沸')
   }
   steepTeaBag() {
-    console.log("用沸水浸泡茶葉");
+    console.log('用沸水浸泡茶葉')
   }
   pourInCup() {
-    console.log("把茶水倒進杯子");
+    console.log('把茶水倒進杯子')
   }
   addLemon() {
-    console.log("加檸檬");
+    console.log('加檸檬')
   }
   init() {
-    this.boilWater();
-    this.steepTeaBag();
-    this.pourInCup();
-    this.addLemon();
+    this.boilWater()
+    this.steepTeaBag()
+    this.pourInCup()
+    this.addLemon()
   }
 }
 
-const tea = new Tea();
-tea.init();
+const tea = new Tea()
+tea.init()
 ```
 
 嗯...有在寫程式的工程師們應該已經開始頭痛了，這兩個類別相似的點也太多了吧，先冷靜分析一下兩者的異同－除了把 `boilWater` 相同以外，其他三個方法可以被抽象化成意近的函式，並由子類別實作。
@@ -78,7 +78,7 @@ tea.init();
 ```javascript
 class Beverage {
   boilWater() {
-    console.log("把水煮沸");
+    console.log('把水煮沸')
   }
   // brewCoffeeGriends 和 steepTeaBag 被抽象成「泡」的動作
   brew() {}
@@ -87,10 +87,10 @@ class Beverage {
   // addSugarAndMilk 和 addLemon 被抽象成「加調味料」的動作
   addCondiments() {}
   init() {
-    this.boilWater();
-    this.brew();
-    this.pourInCup();
-    this.addCondiments();
+    this.boilWater()
+    this.brew()
+    this.pourInCup()
+    this.addCondiments()
   }
 }
 ```
@@ -101,18 +101,18 @@ class Beverage {
 ```javascript
 class Coffee extends Beverage {
   brew() {
-    console.log("用沸水沖泡咖啡");
+    console.log('用沸水沖泡咖啡')
   }
   pourInCup() {
-    console.log("把咖啡倒進杯子");
+    console.log('把咖啡倒進杯子')
   }
   addCondiments() {
-    console.log("加糖和牛奶");
+    console.log('加糖和牛奶')
   }
 }
 
-const coffee = new Coffee();
-coffee.init();
+const coffee = new Coffee()
+coffee.init()
 ```
 
 以下是重構後的茶類別 `Tea`：
@@ -120,18 +120,18 @@ coffee.init();
 ```javascript
 class Tea extends Beverage {
   brew() {
-    console.log("用沸水浸泡茶葉");
+    console.log('用沸水浸泡茶葉')
   }
   pourInCup() {
-    console.log("把茶水倒進杯子");
+    console.log('把茶水倒進杯子')
   }
   addCondiments() {
-    console.log("加檸檬");
+    console.log('加檸檬')
   }
 }
 
-const tea = new Tea();
-tea.init();
+const tea = new Tea()
+tea.init()
 ```
 
 如此改動不只讓程式顯得一致，也利用原型鏈將相同的方法繼承避免重複。那麼，這個模式所指的範本方法到底是誰呢？在上面這個例子中，答案是 `Beverage.prototype.init`，它作為演算法的腳本，**指導子類別用何種順序去執行哪些方法**。
@@ -147,65 +147,65 @@ tea.init();
 ```javascript
 const Beverage = function (params) {
   const boilWater = function () {
-    console.log("把水煮沸");
-  };
+    console.log('把水煮沸')
+  }
   // 若一定要由子物件實作可以在預設 function 動手腳防呆
   const brew =
     params.brew ||
     function () {
-      throw new Error("必須傳遞 brew 方法");
-    };
+      throw new Error('必須傳遞 brew 方法')
+    }
   const pourInCup =
     params.pourInCup ||
     function () {
-      throw new Error("必須傳遞 pourInCup 方法");
-    };
+      throw new Error('必須傳遞 pourInCup 方法')
+    }
   const addCondiments =
     params.addCondiments ||
     function () {
-      throw new Error("必須傳遞 addCondiments 方法");
-    };
+      throw new Error('必須傳遞 addCondiments 方法')
+    }
 
-  const F = function () {};
+  const F = function () {}
   // 注意，箭頭函式沒有 prototype，請乖乖使用 function () {}
   F.prototype.init = function () {
-    boilWater();
-    brew();
-    pourInCup();
-    addCondiments();
-  };
-  return F;
-};
+    boilWater()
+    brew()
+    pourInCup()
+    addCondiments()
+  }
+  return F
+}
 
 const Coffee = Beverage({
   brew: function () {
-    console.log("用沸水沖泡咖啡");
+    console.log('用沸水沖泡咖啡')
   },
   pourInCup: function () {
-    console.log("把咖啡倒進杯子");
+    console.log('把咖啡倒進杯子')
   },
   addCondiments: function () {
-    console.log("加糖和牛奶");
+    console.log('加糖和牛奶')
   },
-});
+})
 
 const Tea = Beverage({
   brew: function () {
-    console.log("用沸水浸泡茶葉");
+    console.log('用沸水浸泡茶葉')
   },
   pourInCup: function () {
-    console.log("把茶倒進杯子");
+    console.log('把茶倒進杯子')
   },
   addCondiments: function () {
-    console.log("加檸檬");
+    console.log('加檸檬')
   },
-});
+})
 
-const coffee = new Coffee();
-coffee.init();
+const coffee = new Coffee()
+coffee.init()
 
-const tea = new Tea();
-tea.init();
+const tea = new Tea()
+tea.init()
 ```
 
 ###### tags: `JavaScript 設計模式與開發實踐` `設計模式` `JavaScript`
