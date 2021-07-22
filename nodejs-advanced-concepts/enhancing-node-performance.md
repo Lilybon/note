@@ -1,4 +1,4 @@
-\# Enhancing Node Performance
+# Enhancing Node Performance
 
 ### Blocking in Event Loop
 
