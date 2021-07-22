@@ -5,23 +5,23 @@
 基本的 redis 指令如下：
 
 ```javascript
-const redis = require('redis');
-const redisUrl = 'redis://127.0.0.1:6379';
-const client = redis.creatClient(redisUrl);
+const redis = require('redis')
+const redisUrl = 'redis://127.0.0.1:6379'
+const client = redis.creatClient(redisUrl)
 
-client.set('colors', { red: 'rojo' }); // 錯誤示範 - 不要用 set 存非純值，會被強制轉成非你預期的字串
-client.get('colors', console.log); // null '[object Object]'
+client.set('colors', { red: 'rojo' }) // 錯誤示範 - 不要用 set 存非純值，會被強制轉成非你預期的字串
+client.get('colors', console.log) // null '[object Object]'
 
-client.set('colors', JSON.stringify{ red: 'rojo' });
-client.get('colors', console.log); // null '{"red":"rojo"}'
+client.set('colors', JSON.stringify{ red: 'rojo' })
+client.get('colors', console.log) // null '{"red":"rojo"}'
 
-client.hset('spanish', 'red', 'rojo');
-client.hget('spanish', 'red', (err, val) => console.log(val)); // rojo
+client.hset('spanish', 'red', 'rojo')
+client.hget('spanish', 'red', (err, val) => console.log(val)) // rojo
 
-client.hset('german', 'red', 'rot');
-client.get('german', 'red', console.log); // null 'rot'
+client.hset('german', 'red', 'rot')
+client.get('german', 'red', console.log) // null 'rot'
 
-client.flushall(); // 清除全部資料
+client.flushall() // 清除全部資料
 ```
 
 ### Cache Solution
