@@ -8,6 +8,9 @@ Setup
 
 ```javascript
 // test/setup
+// 設定每個 test 的逾時秒數，超過該時現限者會被判定為失敗
+jest.setTimeout(30000)
+
 require('../models/User')
 
 const mongoose = require('mongoose')
@@ -128,7 +131,7 @@ class CustomPage {
   
     await this.page.setCookie({ name: 'session', value: session })
     await this.page.setCookie({ name: 'session.sig', value: sig })
-    await this.page.goto('localhost:3000')
+    await this.page.goto('localhost:3000/blogs')
     // 等指定 selector 的 element 生成後才繼續執行
     await this.page.waitFor('a[href="/auth/logout"]')
   }
@@ -179,6 +182,50 @@ test('When signed in, shows logout button', async () => {
   const text = await page.getContentsOf('a[href="/auth/logout"]')
   
   expect(text).toEqual('Logout')
+})
+```
+
+Blogs Test
+
+```javascript
+const Page = require('./helpers/page')
+
+let page
+
+beforeEach(async () => {
+  page = await Page.build()
+  await page.goto('localhost:3000')
+})
+
+afterEach(async () => {
+  await page.close()
+})
+
+describe('When logged in', async () => {
+  beforeEach(() => {
+    await page.login()
+    await page.click('a.btn-floating')
+  })
+
+  test('can see blog create form', async () => {
+    const label = await page.getContentsOf('form label')
+  
+    expect(label).toEqual('Blog Title')
+  })
+  
+  describe('And using invalid inputs', async () => {
+    beforeEach(async () => {
+      await page.click('form button')
+    })
+    
+    test('The form shows an error message', async () => {
+      const titleError = await page.getContentsOf('.title .red-text')
+      const contentError = await page.getContentsOf('.content .red-text')
+      
+      expect(titleError).toEqual('You must provide a value')
+      expect(contentError).toEqual('You must provide a value')
+    })
+  })
 })
 ```
 
