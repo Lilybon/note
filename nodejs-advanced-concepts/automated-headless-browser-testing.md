@@ -2,6 +2,8 @@
 
 ### Global Jest Setup
 
+可以在進行所有測試前對 mongoose 做最基本的 setup。
+
 Setup
 
 ```javascript
@@ -27,6 +29,7 @@ package.json
 
 ### Session Signatures
 
+簽章 sig 的存在主要是避免使用者隨意篡改 session 的資料，若有惡意使用者在不知道 sig 是透過什麼 secret 被 hash 出來的情況下竄改 session，他終究會在審核身份的 middleware 被阻擋。
 ```
 set-cookie:session=SESSION; path=/; expires=Fri 23, July 2021 21:40:35 GTM; httponly
 set-cookie:session.sig=SESSION_SIGNATURE; path=/; expires=Fri 23, July 2021 21:40:35 GTM; httponly
@@ -52,18 +55,18 @@ keygrip.verify('session=' + session, maliciousSessionSignature) // false
 
 ### Factory Functions
 
-User Factory
+User Factory - 利用 mongoose 製造假的使用者
 
 ```javascript
 // test/factories/userFactory
 const mongoose = require('mongoose')
-// 由於 test setup 已處理過 mongo 連線所以不會報錯
+// 由於 test setup 已處理過 mongo 連線且載入 User model 所以不會報錯
 const User = mongoose.model('User')
 
 module.export = () => new User({}).save()
 ```
 
-Session Factory
+Session Factory - 利用假的使用者製造假的 sig 和 session
 
 ```javascript
 // test/factories/sessionFactory
@@ -87,29 +90,78 @@ module.export = (user) => {
 }
 ```
 
-### Practice
+### Helper Functions
+
+若想**避免劫持造成第三方套件的 `Class` 被污染**，可以嘗試使用 `Class` 並回傳一個 `Proxy` 決定讀取 property 的優先級。BTW，原型鏈其實也可以達到相近的效果，不過最大的差別是用 Proxy 你可以**自訂義物件的優先級**，即使沒上下關係的物件也可以被列入參考；反之，原型鏈的話必須順著繼承的順序尋找 property。
+
+Page
 
 ```javascript
-const pupeteer = require('puppeteer')
-const userFactory = require('./factories/userFactory')
-const sessionFactory = require('./factories/sessionFactory')
+// test/helpers/page
+const puppeteer = require('puppeteer')
+const userFactory = require('../factories/userFactory')
+const sessionFactory = require('../factories/sessionFactory')
 
-let browser, page
+class CustomPage {
+  static async build () {
+    const browser = await puppeteer.launch({
+      headless: false
+    })
+    
+    const page = await browser.newPage()
+    const customPage = new CustomPage(page)
+    
+    return new Proxy(customPage, {
+      get: function (target, property) {
+        return customPage[property] || browser[property] || page[property]
+      }
+    })
+  }
+
+  constructor (page) {
+    this.page = page
+  }
+  
+  login () {
+    const user = await userFactory()
+    const { session, sig } = sessionFactory(user)
+  
+    await this.page.setCookie({ name: 'session', value: session })
+    await this.page.setCookie({ name: 'session.sig', value: sig })
+    await this.page.goto('localhost:3000')
+    // 等指定 selector 的 element 生成後才繼續執行
+    await this.page.waitFor('a[href="/auth/logout"]')
+  }
+  
+  async getContentsOf (selector) {
+    return this.page.$eval(selector, el => el.innerHTML)
+  }
+}
+
+module.export = CustomPage
+```
+
+### Practice
+
+Header Test
+
+```javascript
+// test/helpers/header.test
+const Page = require('./helpers/page')
+
+let page
 
 beforeEach(async () => {
-  browser = await pupeteer.launch({
-    headless: false,
-  })
-  page = await browser.newPage()
+  page = await Page.build()
   await page.goto('localhost:3000')
 })
 
 afterEach(async () => {
-  await browser.close()
+  await page.close()
 })
 
 test('the header has the correct text', async () => {
-  const text = await page.$eval('a.brand-logo', (el) => el.innerHTML)
+  const text = await page.getContentsOf('a.brand-logo')
   expect(text).toEqual('Blogster')
 })
 
@@ -122,16 +174,9 @@ test('clicking login starts oauth flow', async () => {
 })
 
 test('When signed in, shows logout button', async () => {
-  const user = await userFactory()
-  const { session, sig } = sessionFactory(user)
+  await page.login()
   
-  await page.setCookie({ name: 'session', value: session })
-  await page.setCookie({ name: 'session.sig', value: sig })
-  await page.goto('localhost:3000')
-  // 等指定 selector 的 element 生成後才繼續執行
-  await page.waitFor('a[href="/auth/logout"]')
-  
-  const text = await page.$eval('a[href="/auth/logout"]', el => el.innerHTML)
+  const text = await page.getContentsOf('a[href="/auth/logout"]')
   
   expect(text).toEqual('Logout')
 })
