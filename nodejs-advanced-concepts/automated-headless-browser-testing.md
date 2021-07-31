@@ -139,6 +139,46 @@ class CustomPage {
   async getContentsOf (selector) {
     return this.page.$eval(selector, el => el.innerHTML)
   }
+  
+  get (path) {
+    return this.page.evaluate(
+      _path =>
+        fetch({
+          path: _path,
+          method: 'GET',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(res => res.json()),
+      path
+    )
+  }
+  
+  post (path, data) {
+    return this.page.evaluate(
+      (_path, _data) => 
+        fetch({
+          path: _path,
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(_data)
+        })
+          .then(res => res.json()),
+      path,
+      data
+    )
+  }
+
+  execRequests (actions) {
+    return Promise.all(
+      actions.map(({ method, path, data }) => this[method](path, data))
+    )
+  }
 }
 
 module.export = CustomPage
@@ -213,6 +253,32 @@ describe('When logged in', async () => {
     expect(label).toEqual('Blog Title')
   })
   
+  describe('And using valid inputs', async () => {
+    beforeEach(async () => {
+      // 模擬輸入表單並提交
+      await page.type('.title input', 'My Title')
+      await page.type('.content input', 'My Content')
+      await page.click('form button')
+    })
+    
+    test('Submitting takes user to review screen', async () => {
+      const text = await page.getContentsOf('h5')
+      
+      expect(text).toEqual('Please confirm your entries')
+    })
+    
+    test('Submitting then saving add blog to index page', async () => {
+      await page.click('button.green')
+      await page.waitFor('.card')
+      
+      const title = await page.getContentsOf('.card-title')
+      const content = await page.getContentsOf('p')
+      
+      expect(title).toEqual('My Title')
+      expect(content).toEqual('My Content')
+    })
+  })
+  
   describe('And using invalid inputs', async () => {
     beforeEach(async () => {
       await page.click('form button')
@@ -225,6 +291,32 @@ describe('When logged in', async () => {
       expect(titleError).toEqual('You must provide a value')
       expect(contentError).toEqual('You must provide a value')
     })
+  })
+})
+
+describe('User is not logged in', async () => {
+  const actions = [
+    {
+      method: 'get',
+      path: '/api/blogs/'
+    },
+    {
+      method: 'get',
+      path: '/api/blogs/',
+      data: {
+        title: 'T',
+        content: 'C'
+      }
+    }
+  ]
+
+  test('Blog related actions are prohibited', async () => {
+    // 模擬進入頁面後直接打請求
+    const results = await page.execRequests(actions)
+
+    for (let result of results) {
+      expect(result).toEqual({ error: 'You must log in!' })
+    }
   })
 })
 ```
