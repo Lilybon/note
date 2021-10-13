@@ -112,6 +112,19 @@ chart.onChartReady(() => {
 
 ### # DataFeed
 
+##### K 線資料格式
+
+```json
+{
+  "time": 1632996240000,
+  "open": 2991.48,
+  "high": 2994.18,
+  "low": 2989.13,
+  "close": 2989.38,
+  "volume": 2001104,
+}
+```
+
 ##### 歷史 K 線
 
 未完成
@@ -120,12 +133,22 @@ chart.onChartReady(() => {
 
 未完成
 
-### 開發需要留意的事項
+### # 開發需要留意的事項
 
-1. lastBar cache
-2. subscription cache
-3. resolution
-4. timezone
+下面講的幾點只看說明可能有點抽象，我覺得先試著看懂上面的範例再理解就好。
+
+1. race condition
+    - 若想確保 `DataFeed` 即時更新 K 線的鉤子 `subscribeOnStream` 和 `unsubscribeFromStream` 正常運作，請確定 web socket 完成連線再渲染圖表。
+2. lastBarCache
+    - 以 Map 格式儲存，用 `symbolInfo` 的可辨識字串(ex: 全名)作為 key，最後一根 K 線作為 value。
+    - 分別須要在第一次 `getBars` 、 `subscribeOnStream` 提及，**為的是在之後 web socket 可以在收到新訊息時即時更新訂閱的最後一根 K 線**。
+3. channelToSubscription
+    - 從 web socket 接收資料時，請做出跟 `subscribeOnStream` 時一樣的 `subscribeUID` ，格式須要跟後端溝通討論。 
+4. resolution
+    - 請求歷史 K 和訂閱即時 K 的提交時間格式參數可能跟 `resolution` 的表示方法不同，最好寫兩支簡單的轉換器處理，或請後端參考 TradingView 提供的格式。
+    - 記得根據 **當前的最後一根 k 線的時間戳** 和 **圖表的 resolution** 推算 **下一根 k 線的時間戳** 。
+5. timezone & locale
+    - 取得使用者當前的 timezone 和語系做舒服的初始化。
 
 ### # 參考
 
