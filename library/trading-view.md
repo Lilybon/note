@@ -32,7 +32,8 @@ const chart = new TradingView.widget({
   debug: false,
   // Container - 綁定之 DOM 元素 ID
   container: 'tv-chart',
-  /* DataFeed - 資料源 (TradingView 最難搞的一塊)，你必須照著它的玩法
+  /* 
+   * DataFeed - 資料源 (TradingView 最難搞的一塊)，你必須照著它的玩法
    * 才能使圖表正常運作，這部分會在後續的 DataFeed 章節講解
    * */
   datafeed: DataFeed,
@@ -44,7 +45,8 @@ const chart = new TradingView.widget({
   timezone: 'Asia/Taipei',
   // Symbol - 預設的指標或股票對應的標記
   symbol: 'binance:ETHUSDT',
-  /* Preset - 針對平台預設的 feature set，建議先針對是平台設置該屬性再
+  /* 
+   * Preset - 針對平台預設的 feature set，建議先針對是平台設置該屬性再
    * 逐一設定啟禁用其他 feature。
    * */
   preset: 'mobile',
@@ -74,7 +76,8 @@ const chart = new TradingView.widget({
   ],
   // Theme - 圖表主題
   theme: 'dark', 
-  /* Overrides - 如果預設的樣式不合意，官方強烈建議透過 overrides 改寫
+  /* 
+   * Overrides - 如果預設的樣式不合意，官方強烈建議透過 overrides 改寫
    * 圖表樣式以符合最佳實踐。
    * */
   overrides: {
@@ -112,6 +115,12 @@ chart.onChartReady(() => {
 
 ### # DataFeed
 
+![所以我說那個醬汁呢](https://images.chinatimes.com/newsphoto/2018-08-17/656/20180817004531.jpg =400x)
+
+##### 生命週期
+
+todo
+
 ##### K 線資料格式
 
 ```json
@@ -127,11 +136,174 @@ chart.onChartReady(() => {
 
 ##### 歷史 K 線
 
-未完成
+###### DataFeed
+
+```javascript
+const lastBarsCache = new Map();
+
+export default {
+  onReady: (callback) => {
+    // todo
+  },
+
+  searchSymbols: async (
+    userInput,
+    exchange,
+    symbolType,
+    onResultReadyCallback
+  ) => {
+    // todo
+  },
+
+  resolveSymbol: async (
+    symbolName,
+    onSymbolResolvedCallback,
+    onResolveErrorCallback,
+  ) => {
+    // todo
+  },
+
+  /* 
+   * 圖表第一次 resolveSymbol 後和其之後把 K 線圖往左滑或縮小時，若沒有指定時間段的
+   * 資料時，TradingView 就會觸發這個鉤子去要新的資料。
+   * */
+  getBars: async (
+    symbolInfo,
+    resolution,
+    periodParams,
+    onHistoryCallback,
+    onErrorCallback,
+  ) => {
+    /* 
+     * from: 新的時間段起點 (UNIX 時間戳)
+     * to: 新的時間段終點 (UNIX 時間戳)
+     * firstDataRequest: 是否為此 symbol 的第一次 getBars (布林值)
+     * */
+    const { from, to, firstDataRequest } = periodParams;
+    try {
+      /* 
+       * 這邊的格式需要跟後端合作完成，
+       * 若以下參數格式跟後端不合，請自己寫配接器轉換。
+       * */
+      const klines = await fetchKLines({
+        resolution: resolution,
+        symbol: symbolInfo.full_name,
+        start_time: from,
+        end_time: to,
+        limit: 2000,
+      });
+      const bars = klines.map(kline => ({
+        time: kline.time,
+        open: kline.open,
+        high: kline.high,
+        low: kline.low,
+        close: kline.close,
+        volume: kline.volume,
+      }));
+
+      // 當 noData 為 true 被回傳時，之後滑到更前面就不會再觸發 getBars 鉤子
+      onHistoryCallback(bars, {
+        noData: bars.length === 0,
+      });
+    } catch (error) {
+      // 若取得歷史資料的過程失敗要使用這個 callback 傳回錯誤資訊
+      onErrorCallback(error);
+    }
+  }
+}
+```
 
 ##### 即時 K 線
 
-未完成
+###### DataFeed
+
+```javascript
+import {
+  subscribeOnStream,
+  unsubscribeFromStream,
+} from './streaming.js';
+
+const lastBarsCache = new Map();
+
+export default {
+  getBars: (
+    symbolInfo,
+    resolution,
+    periodParams,
+    onHistoryCallback,
+    onErrorCallback,
+  ) {
+    // ...
+    try {
+      /* 
+       * 只在第一次將目前 symbol 的最後一根 K 線快取，
+       * 因為第一次拿到的最後一根就是最新的一根 K 線。
+       * */
+      if (firstDataRequest) {
+        lastBarsCache.set(symbolInfo.full_name, {
+          ...bars[bars.length - 1],
+        });
+      }
+      onHistoryCallback(bars, {
+        noData: bars.length === 0,
+      });
+    } catch (error) {
+      // ...
+    }
+  },
+  subscribeBars: (
+    symbolInfo,
+    resolution,
+    onRealtimeCallback,
+    subscribeUID,
+    onResetCacheNeededCallback,
+  ) => {
+    subscribeOnStream(
+      symbolInfo,
+      resolution,
+      onRealtimeCallback,
+      subscribeUID,
+      onResetCacheNeededCallback,
+      /* 
+       * 將目前 symbol 的最後一根 k 線傳給 streaming 快取作為比較初始值，
+       * 這樣之後 streaming 就知道要如何更新 K 線了
+       * */
+      lastBarsCache.get(symbolInfo.full_name),
+    );
+  },
+
+  unsubscribeBars: (subscriberUID) => {
+    unsubscribeFromStream(subscriberUID);
+  }
+}
+```
+
+###### Streaming
+
+```javascript
+const socket = io('WSS_SERVICE_URL_HERE');
+const channelToSubscription = new Map();
+
+socket.on('m', data => {
+  console.log('[socket] Message:', data);
+  // todo
+});
+
+export function subscribeOnStream (
+  symbolInfo,
+  resolution,
+  onRealtimeCallback,
+  subscribeUID,
+  onResetCacheNeededCallback,
+  lastBar,
+) {
+  // todo 
+}
+
+export function unsubscribeFromStream (subscriberUID) {
+  // todo
+}
+```
 
 ### # 開發需要留意的事項
 
@@ -145,7 +317,7 @@ chart.onChartReady(() => {
 3. channelToSubscription
     - 從 web socket 接收資料時，請做出跟 `subscribeOnStream` 時一樣的 `subscribeUID` ，格式須要跟後端溝通討論。 
 4. resolution
-    - 請求歷史 K 和訂閱即時 K 的提交時間格式參數可能跟 `resolution` 的表示方法不同，最好寫兩支簡單的轉換器處理，或請後端參考 TradingView 提供的格式。
+    - 請求歷史 K 和訂閱即時 K 的提交時間格式參數可能跟 `resolution` 的表示方法不同，最好寫兩支簡單的配接器處理，或請後端參考 TradingView 提供的格式。
     - 記得根據 **當前的最後一根 k 線的時間戳** 和 **圖表的 resolution** 推算 **下一根 k 線的時間戳** 。
 5. timezone & locale
     - 取得使用者當前的 timezone 和語系做舒服的初始化。
