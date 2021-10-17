@@ -125,12 +125,12 @@ todo
 
 ```json
 {
-  "time": 1632996240000,
-  "open": 2991.48,
-  "high": 2994.18,
-  "low": 2989.13,
-  "close": 2989.38,
-  "volume": 2001104,
+  "time": 1632996240000, // UNIX 時間戳
+  "open": 2991.48, // 開盤價
+  "high": 2994.18, // 最高價
+  "low": 2989.13, // 最低價
+  "close": 2989.38, // 收盤價
+  "volume": 2001104, // 成交量
 }
 ```
 
@@ -272,8 +272,8 @@ export default {
     );
   },
 
-  unsubscribeBars: (subscriberUID) => {
-    unsubscribeFromStream(subscriberUID);
+  unsubscribeBars: (subscribeUID) => {
+    unsubscribeFromStream(subscribeUID);
   }
 }
 ```
@@ -281,12 +281,62 @@ export default {
 ###### Streaming
 
 ```javascript
-const socket = io('WSS_SERVICE_URL_HERE');
+const ws = new WebSocket('WSS_SERVICE_URL_HERE');
 const channelToSubscription = new Map();
 
-socket.on('m', data => {
-  console.log('[socket] Message:', data);
-  // todo
+ws.onmessage(event => {
+  const data = typeof event.data === 'string'
+    ? JSON.parse(event.data)
+    : event.data;
+
+  const { type, content } = data;
+  switch (type) {
+    // ...
+    case 'kline':
+      // 為了讓語意順一點用 newBar 變數說明
+      const newBar = content;
+      
+      // 這邊可能要注意一下如何根據回傳訊息去拼回快取 key
+      const subscribeUID = `${newBar.symbol}_#_${newBar.resolution}`;
+      const subscriptionItem = channelToSubscription.get(subscribeUID);
+      const {
+        resolution,
+        onRealtimeCallback,
+        lastBar,
+      } = subscriptionItem;
+
+      /*
+       * 根據圖表 resolution 推算下一個 ｋ線的時間，如果是
+       * 時間大於等於預期的時間，則為全新的一根 K 線；反之，
+       * 則為目前快取 K 線的局部更新
+       * */
+      let bar;
+      if (newBar.time >= getNextTimeStampByResolution(resolution)) {
+        bar = {
+          time: newBar.time,
+          open: newBar.open,
+          high: newBar.high,
+          low: newBar.low,
+          close: newBar.close,
+          volume: newBar.volume,
+        };
+      } else {
+        bar = {
+          ...lastBar,
+          high: Math.max(lastBar.high, newBar.high),
+          low: Math.min(lastBar.low, newBar.low),
+          close: newBar.close,
+          volume: newBar.vol
+        };
+      }
+
+      subscriptionItem.lastBar = bar;
+      // 觸發渲染
+      onRealtimeCallback(bar); 
+      break;
+    // ...
+    default:
+  }
 });
 
 export function subscribeOnStream (
@@ -297,11 +347,35 @@ export function subscribeOnStream (
   onResetCacheNeededCallback,
   lastBar,
 ) {
+  unsubscribeFromStream(subscribeUID);
+  // WS 訂閱 symbol
+  ws.send({
+    op: 'sub',
+    topic: 'kline',
+    resolution: resolution,
+    symbol: symbolInfo.full_name
+  });
+  channelToSubscription.set(subscribeUID, {
+    symbolInfo,
+    resolution,
+    onRealtimeCallback,
+    lastBar
+  });
   // todo 
 }
 
-export function unsubscribeFromStream (subscriberUID) {
-  // todo
+export function unsubscribeFromStream (subscribeUID) {
+  if (channelToSubscription.has(subscribeUID)) {
+    const subscriptionItem = channelToSubscription.get(subscribeUID);
+    // WS 取消訂閱 symbol
+    ws.send({
+      op: 'unsub',
+      topic: 'kline',
+      resolution: subscriptionItem.resolution,
+      symbol: subscriptionItem.symbolInfo.full_name
+    })
+    channelToSubscription.delete(subscribeUID);
+  }
 }
 ```
 
