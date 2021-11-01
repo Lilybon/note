@@ -1,8 +1,7 @@
-# 算法題
+# 面試題
 
-下面會提及一些算法考題，<br />
-都是一些未具名的面經題，<br />
-不過因為 Leetcode 找不到類似的題目但又很想保存起來所以全部丟來這邊。
+下面會提及一些面試考題，<br />
+值得在面試前消化一下。
 
 1. Create a sum function that will calculate the sum of arguments. if there aren’t any arguments, return the result, if there are any arguments, return a function that can be used for the next calculation.
 
@@ -147,6 +146,79 @@
 
    這題我還沒自己實作，先備份我同事的 pyhton 解答在這邊。
 
-6. xxx
+6. Function Cache
+    ```javascript
+    function cached (fn) {
+      const memo = {}
+      return function (...args) {
+        const key = JSON.stringify(args)
+        if (key in memo) return memo[key]
+        return memo[key] = fn(...args)
+      }
+    }
+    ```
+7. Parse CSV
+    ```javascript
+    const input = 'Number, City, Location\n\
+    1, City 1, Taichung\n\
+    2, City 2, "Taipei, Taiwan, aaa, bbb"'
+    
+    const result = parseCSV(input)
+    result[0][0] // Number
+    result[1][1] // City 1
+    result[2][2] // Taipei, Taiwan, aaa, bbb
+
+    function parseCSV (text) {
+      return text.split(/\n/)
+      // todo: how to split comma but without double quote comma
+    }
+    ```
+8. Deep Clone
+    ```javascript
+    function deepClone (object) {
+      if (!object) return
+      const clonedObject = Array.isArray(object) ? [] : {}
+      for (let [key, value] of Object.entries(object)) {
+        clonedObject[key] = typeof value === 'object' ? deepClone(value) : value
+      }
+      return clonedObject
+    }
+    ```
+9. call, apply
+
+```javascript
+Function.prototype.call2 = function (context, ...args) {
+  context = context || window
+  context.fn = this
+  const result = context.fn(...args)
+  delete context.fn
+  return result
+}
+
+Function.prototype.apply2 = function (context, args = []) {
+  context = context || window
+  context.fn = this
+  const result = context.fn(...args)
+  delete context.fn
+  return result
+}
+```
+
+10. new
+    ```javascript
+    function objectFactory (Constructor, ...args) {
+      const obj = new Object()
+      obj.__proto__ = Constructor.prototype
+      const result = Constructor.apply(obj, args)
+      return typeof result === 'object' ? result : obj
+    }
+    ```
+11. 請用 React-hook 實作可按住 Shift 多選的 checkbox 功能
+    
+    可參考以下文章嘗試
+    - React use
+    - React Element UI
+    - [這篇文章的實作方式](https://tj.ie/multi-select-checkboxes-with-react/)
+12. X
 
 ###### tags: `Interview` `Front-end`
