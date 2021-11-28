@@ -173,7 +173,7 @@
       // todo: how to split comma but without double quote comma
     }
     ```
-8. Deep Clone
+8. 實作 Deep Clone
     ```javascript
     function deepClone (object) {
       if (!object) return
@@ -184,10 +184,13 @@
       return clonedObject
     }
     ```
-9. call, apply
+9. 實作 call, apply, bind
 
 ```javascript
 Function.prototype.call2 = function (context, ...args) {
+  if (typeof this !== 'function') {
+    throw new Error('call2 - keyword "this" is not callable')
+  }
   context = context || window
   context.fn = this
   const result = context.fn(...args)
@@ -196,29 +199,295 @@ Function.prototype.call2 = function (context, ...args) {
 }
 
 Function.prototype.apply2 = function (context, args = []) {
+  if (typeof this !== 'function') {
+    throw new Error('apply2 - keyword "this" is not callable')
+  }
   context = context || window
   context.fn = this
   const result = context.fn(...args)
   delete context.fn
   return result
 }
+
+Function.prototype.bind2 = function (context, ...bindingArgs) {
+  if (typeof this !== 'function') {
+    throw new Error('bind2 - keyword "this" is not callable')
+  }
+
+  const self = this
+
+  // 使用額外的 function constructor 避免直接篡改 self 的 prototype
+  const fNOP = function () {}
+  fNOP.prototype = self.prototype
+
+  const fBound = function (...execArgs) {
+    const args = bindingArgs.slice(1).concat(execArgs)
+    // 當作為構造函數時： this 指向實例，條件為 true，綁定實例本身為目標
+    // 當作一班函數時： this 指向 window，條件為 false，綁定 context 為目標
+    return self.apply(this instanceof fNOP ? this : context, args)
+  }
+  fBound.prototype = new fNOP()
+
+  return fBound
+}
 ```
 
-10. new
+10. 實作 new
     ```javascript
     function objectFactory (Constructor, ...args) {
-      const obj = new Object()
+      if (typeof Constructor !== 'function') {
+        throw new Error('objectFactory - Constructor is not callable')
+      }
+      const obj = {}
       obj.__proto__ = Constructor.prototype
       const result = Constructor.apply(obj, args)
       return typeof result === 'object' ? result : obj
     }
     ```
+
 11. 請用 React-hook 實作可按住 Shift 多選的 checkbox 功能
     
     可參考以下文章嘗試
     - React use
     - React Element UI
     - [這篇文章的實作方式](https://tj.ie/multi-select-checkboxes-with-react/)
-12. X
+
+12. 使用你習慣的現代前端框架做一個有無限捲動的 NFT 列表頁和詳情頁，可以的話順便加上 MetaMask 和 web3.js 做登入。
+
+13. this 指向 - 請說明畫面會印出什麼結果
+    ```javascript
+    const value = 2
+    const foo = {
+        value: 1,
+        bar: bar.bind(null)
+    }
+
+    function bar() {
+        console.log(this.value);
+    }
+
+    foo.bar() // 2
+    ```
+
+14. 實作 throttle
+15. 實作 debounce
+    ```javascript
+    function debounce (callback, wait, immediate) {
+      let timeout, result
+
+      function helper (...args) {
+        const context = this
+        clearTimeout(timeout)
+        if (immediate) {
+          if (!timeout) result = callback.apply(context, args)
+          timeout = setTimeout(function () {
+            timeout = null
+          }, wait)
+          return
+        }
+        timeout = setTimeout(function () {
+          result = callback.apply(context, args)
+        }, wait)
+        return result
+      }
+      
+      helper.cancel = function () {
+        clearTimeout(timeout)
+        timeout = null
+      }
+      
+      return helper
+    }
+    ```
+
+16. callee - 請說明畫面會印出什麼結果
+    ```javascript
+    const data = []
+    for (let i = 0; i < 3; i++) {
+      (data[i] = function () {
+        console.log(arguments.callee.i)
+      }).i = i
+      data[i]()
+    }
+    // 0
+    // 1
+    // 2
+    ```
+
+17. 實作 ES5 Object.create
+    ```javascript
+    function createObject (o) {
+      const F = function () {}
+      F.prototype = o
+      return new F() 
+    }
+    ```
+
+18. 請解釋 JavaScript 是如何繼承的？原型鏈是什麼？寫一段繼承看看。
+    ```javascript
+    function Parent (name) {
+      this.name = name
+      this.colors = ['red', 'blue', 'green']
+    }
+
+    Parent.prototype.getName = function () {
+      console.log(this.name)
+    }
+
+    function Child (name, age) {
+      Parent.call(this, name);
+      this.age = age;
+    }
+
+    Child.prototype = Object.create(Parent.prototype)
+    Child.prototype.constructor = Child
+
+
+    var child1 = new Child('kevin', 18)
+
+    console.log(child1)
+    ```
+
+19. 實作 Array 的 Iterator。物件本身是不可以被 iterate 的，要如何使物件可以執行 forOf
+    ```javascript
+    function createIterator (items) {
+      let index = 0
+      return {
+        next: function () {
+          const done = index >= items.length
+          const value = done ? undefined : items[index++]
+          return {
+            value,
+            done
+          }
+        }
+      }
+    }
+
+    const iterator = createIterator([1, 2, 3]);
+
+    console.log(iterator.next()); // { done: false, value: 1 }
+    console.log(iterator.next()); // { done: false, value: 2 }
+    console.log(iterator.next()); // { done: false, value: 3 }
+    console.log(iterator.next()); // { done: true, value: undefined }
+    
+    const obj = {
+      [Symbol.iterator]: function () {
+        return createIterator([1, 2, 3])
+      }
+    }
+    for (let v of obj) console.log(v)
+    // 1
+    // 2
+    // 3
+    ```
+
+20. 實現函數惰性
+    ```javascript
+    // IIFE
+    let lazyFn = (function () {
+      let date
+      return function () {
+        if (date) return date
+        date = new Date()
+        return date
+      }
+    })()
+    // 函數對象
+    let lazyFn = function () {
+      if (lazyFn.date) return lazyFn.date
+      lazyFn.date = new Date()
+      return lazyFn.date
+    }
+
+    // 惰性函數
+    let lazyFn = function () {
+      const date = new Date()
+      lazyFn = function () {
+        return date
+      }
+      return lazyFn()
+    }
+    ```
+
+21. 請解釋 SPA 的優缺點。請說明 SPA 如何做 SEO。
+22. 實作 mergePromise
+```javascript
+const time = timer => 
+  new Promise(resolve => {
+    setTimeout(() => {
+      resolve()
+    }, timer)
+  })
+
+const ajax1 = () => time(2000).then(() => {
+  console.log(1);
+  return 1
+})
+
+const ajax2 = () => time(1000).then(() => {
+  console.log(2);
+  return 2
+})
+
+const ajax3 = () => time(1000).then(() => {
+  console.log(3);
+  return 3
+})
+
+const mergePromise = ajaxs => {
+  const data = []
+  let promise = Promise.resolve()
+  ajaxs.forEach(ajax => {
+    promise = promise.then(ajax).then(res => {
+      data.push(res)
+      return data
+    })
+  })
+  return promise
+}
+
+mergePromise([ajax1, ajax2, ajax3]).then(data => {
+  console.log('done')
+  console.log(data)
+})
+// 1
+// 2
+// 3
+// done
+// [1, 2, 3]
+```
+23. 使用Promise實現紅綠燈交替重複亮
+```javascript
+const red = () => {
+  console.log('red')
+}
+
+const green = () => {
+  console.log('green')
+}
+
+const yellow = () => {
+  console.log('yellow')
+}
+
+const light = (timer, cb) =>
+  new Promise(resolve => {
+    setTimeout(() => {
+      cb()
+      resolve()
+    }, timer)
+  })
+
+const step = () =>
+  Promise.resolve()
+    .then(() => light(3000, red))
+    .then(() => light(2000, green))
+    .then(() => light(1000, yellow))
+    .then(() => step())
+
+step()
+```
+24. X
 
 ###### tags: `Interview` `Front-end`
