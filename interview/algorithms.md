@@ -216,17 +216,14 @@ Function.prototype.bind2 = function (context, ...bindingArgs) {
 
   const self = this
 
-  // 使用額外的 function constructor 避免直接篡改 self 的 prototype
-  const fNOP = function () {}
-  fNOP.prototype = self.prototype
-
   const fBound = function (...execArgs) {
-    const args = bindingArgs.slice(1).concat(execArgs)
+    const args = bindingArgs.concat(execArgs)
     // 當作為構造函數時： this 指向實例，條件為 true，綁定實例本身為目標
     // 當作一班函數時： this 指向 window，條件為 false，綁定 context 為目標
-    return self.apply(this instanceof fNOP ? this : context, args)
+    return self.apply(this instanceof fBound ? this : context, args)
   }
-  fBound.prototype = new fNOP()
+  fBound.prototype = Object.create(self.prototype)
+  fBound.prototype.constructor = fBound
 
   return fBound
 }
@@ -270,21 +267,34 @@ Function.prototype.bind2 = function (context, ...bindingArgs) {
     ```
 
 14. 實作 throttle
+```javascript
+function throttle (callback, wait) {
+  let timeout
+  return function (...args) {
+    let context = this
+    if (timeout) return
+    timeout = setTimeout(function () {
+      callback.apply(context, args)
+      timeout = null
+    })
+  }    
+}
+```
 15. 實作 debounce
     ```javascript
     function debounce (callback, wait, immediate) {
       let timeout, result
 
       function helper (...args) {
-        const context = this
+        let context = this
         clearTimeout(timeout)
         if (immediate) {
           if (!timeout) result = callback.apply(context, args)
           timeout = setTimeout(function () {
             timeout = null
           }, wait)
-          return
-        }
+          return result
+        } 
         timeout = setTimeout(function () {
           result = callback.apply(context, args)
         }, wait)
@@ -382,7 +392,7 @@ Function.prototype.bind2 = function (context, ...bindingArgs) {
     // 3
     ```
 
-20. 實現函數惰性
+21. 實現函數惰性
     ```javascript
     // IIFE
     let lazyFn = (function () {
@@ -412,82 +422,106 @@ Function.prototype.bind2 = function (context, ...bindingArgs) {
 
 21. 請解釋 SPA 的優缺點。請說明 SPA 如何做 SEO。
 22. 實作 mergePromise
-```javascript
-const time = timer => 
-  new Promise(resolve => {
-    setTimeout(() => {
-      resolve()
-    }, timer)
-  })
+    ```javascript
+    const time = timer => 
+      new Promise(resolve => {
+        setTimeout(() => {
+          resolve()
+        }, timer)
+      })
 
-const ajax1 = () => time(2000).then(() => {
-  console.log(1);
-  return 1
-})
-
-const ajax2 = () => time(1000).then(() => {
-  console.log(2);
-  return 2
-})
-
-const ajax3 = () => time(1000).then(() => {
-  console.log(3);
-  return 3
-})
-
-const mergePromise = ajaxs => {
-  const data = []
-  let promise = Promise.resolve()
-  ajaxs.forEach(ajax => {
-    promise = promise.then(ajax).then(res => {
-      data.push(res)
-      return data
+    const ajax1 = () => time(2000).then(() => {
+      console.log(1);
+      return 1
     })
-  })
-  return promise
-}
 
-mergePromise([ajax1, ajax2, ajax3]).then(data => {
-  console.log('done')
-  console.log(data)
-})
-// 1
-// 2
-// 3
-// done
-// [1, 2, 3]
-```
+    const ajax2 = () => time(1000).then(() => {
+      console.log(2);
+      return 2
+    })
+
+    const ajax3 = () => time(1000).then(() => {
+      console.log(3);
+      return 3
+    })
+
+    const mergePromise = ajaxs => {
+      const data = []
+      let promise = Promise.resolve()
+      ajaxs.forEach(ajax => {
+        promise = promise.then(ajax).then(res => {
+          data.push(res)
+          return data
+        })
+      })
+      return promise
+    }
+
+    mergePromise([ajax1, ajax2, ajax3]).then(data => {
+      console.log('done')
+      console.log(data)
+    })
+    // 1
+    // 2
+    // 3
+    // done
+    // [1, 2, 3]
+    ```
+
 23. 使用Promise實現紅綠燈交替重複亮
+    ```javascript
+    const red = () => {
+      console.log('red')
+    }
+
+    const green = () => {
+      console.log('green')
+    }
+
+    const yellow = () => {
+      console.log('yellow')
+    }
+
+    const light = (timer, cb) =>
+      new Promise(resolve => {
+        setTimeout(() => {
+          cb()
+          resolve()
+        }, timer)
+      })
+
+    const step = () =>
+      Promise.resolve()
+        .then(() => light(3000, red))
+        .then(() => light(2000, green))
+        .then(() => light(1000, yellow))
+        .then(() => step())
+
+    step()
+    ```
+
+24. 實作 `Promise.all` `Promise.race`
 ```javascript
-const red = () => {
-  console.log('red')
+Promise.prototype.all2 = function (...promises) {
+  const results = []
+  const merged = promises.reduce((acc, promise) =>
+    acc
+      .then(() => promise)
+      .then((result) => results.push(result)),
+    Promise.resolve(null)
+  )
+  return merged.then(_ => results)
 }
 
-const green = () => {
-  console.log('green')
-}
-
-const yellow = () => {
-  console.log('yellow')
-}
-
-const light = (timer, cb) =>
-  new Promise(resolve => {
-    setTimeout(() => {
-      cb()
-      resolve()
-    }, timer)
+Promise.prototype.race2 = function (...promises) {
+  return new Promise((resolve, reject) => {
+    promises.forEach(promise =>
+      promise
+        .then(resolve)
+        .catch(reject)
   })
-
-const step = () =>
-  Promise.resolve()
-    .then(() => light(3000, red))
-    .then(() => light(2000, green))
-    .then(() => light(1000, yellow))
-    .then(() => step())
-
-step()
+}
 ```
-24. X
+
 
 ###### tags: `Interview` `Front-end`
