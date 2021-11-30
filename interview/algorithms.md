@@ -501,27 +501,154 @@ function throttle (callback, wait) {
     ```
 
 24. 實作 `Promise.all` `Promise.race`
+    ```javascript
+    Promise.prototype.all2 = function (...promises) {
+      const results = []
+      const merged = promises.reduce((acc, promise) =>
+        acc
+          .then(() => promise)
+          .then((result) => results.push(result)),
+        Promise.resolve(null)
+      )
+      return merged.then(_ => results)
+    }
+
+    Promise.prototype.race2 = function (...promises) {
+      return new Promise((resolve, reject) => {
+        promises.forEach(promise =>
+          promise
+            .then(resolve)
+            .catch(reject)
+      })
+    }
+    ```
+
+25. 設計一個控制 promise 倂發數上限的函式
+    ```javascript
+    function promiseConcurrencyLimit (limit, tasks) {
+      const queue = [...tasks]
+      const initialLength = Math.min(limit, queue.length)
+      for (let i = 0; i < initialLength; i++) {
+        helper(queue)
+      }
+    }
+
+    function helper (queue) {
+        if (!queue.length) return
+        const promiseFn = queue.shift()
+        promiseFn().finally(() => {
+          helper(queue)
+        })
+    }
+    ```
+
+26. 實作 promise
 ```javascript
-Promise.prototype.all2 = function (...promises) {
-  const results = []
-  const merged = promises.reduce((acc, promise) =>
-    acc
-      .then(() => promise)
-      .then((result) => results.push(result)),
-    Promise.resolve(null)
-  )
-  return merged.then(_ => results)
+const HANDLERS = Symbol('handlers')
+const QUEUE = Symbol('queue')
+const STATE = Symbol('state')
+const VALUE = Symbol('value')
+
+const PENDING = 'pending'
+const FULFILLED = 'fulfilled'
+const REJECTED = 'rejected'
+
+class MyPromise {
+  constructor (fn) {
+    this[HANDLER] = new Handlers()
+    this[QUEUE] = []
+    this[STATE] = PENDING
+    this[VALUE] = undefined
+
+    const fnType = typeof fn
+    if (fnType === 'function') {
+      try {
+        // 直接代入對應的 resolve 跟 reject 嘗試執行
+        fn(
+          value => resolvePromise(this, value),
+          reason => transition(this, REJECTED, reason)
+        )
+      } catch (error) {
+        transition(this, REJECTED, error)
+      }
+    } else if (fnType !== undefined) {
+      resolvePromise(this, fn)
+    }
+  }
+    
+  get state () {
+    return this[STATE]
+  }
+
+  get value () {
+    return this[VALUE]
+  }
+    
+  then (onFulfilled, onRejected) {
+    const next = new MyPromise()
+    if (typeof onFulfilled === 'function') {
+       next[HANDLERS].fulfill = onFulfilled
+    }
+    if (typeof onRejected === 'function') {
+       next[HANDLERS].reject = onRejected
+    }
+    this[QUEUE].push(next)
+    process(this)
+    return next
+  }
+
+  catch (onRejected) {
+    return this.then(null, onRejected)
+  }
 }
 
-Promise.prototype.race2 = function (...promises) {
-  return new Promise((resolve, reject) => {
-    promises.forEach(promise =>
-      promise
-        .then(resolve)
-        .catch(reject)
-  })
+class Handlers {
+  constructor () {
+    this.fulfill = null
+    this.reject = null
+  }
+}
+
+function resolvePromise (promise, x) {
+  // TODO: how?
+}
+
+function transition (promise, state, value) {
+  if (promise[STATE] === state || promise[STATE] !== PENDING) return
+  promise[STATE] = state
+  promise[VALUE] = value
+  return process(promise)
+}
+
+function process (promise) {
+  if (promise[STATE] !== PENDING) return
+  // we skip the environment IIFE async task binding
+  setTimeout(processNextTick, 0, promise)
+  return promise
+}
+
+function processNextTick (promise) {
+  while (promise[QUEUE].length) {
+    const queuePromise = promise[QUEUE].shift()
+    let handler
+
+    if (queuePromise[STATE] === FULFILLED) {
+      handler = queuePromise[HANDLERS].fulfill || value => value
+    } else if (queuePromise[STATE] === REJECTED) {
+      handler = queuePromise[HANDLERS].reject || reason => { throw reason }
+    }
+
+    try {
+      resolvePromise(queuePromise, handler(promise[VALUE]))
+    } catch (error) {
+      transition(queuePromise, REJECTED, error)
+      continue
+    }
+  }
 }
 ```
+
+27. X
 
 
 ###### tags: `Interview` `Front-end`
