@@ -45,11 +45,25 @@
 
 ![我叫你上車](https://memeprod.sgp1.digitaloceanspaces.com/meme/6f9a32f0ec210b56aed67f4239c43faa.png =400x)
 
+### 安裝 VSCode
+
+如果你和我一樣覺得 Android Studio 用得很不習慣，也可以用 VSCode。
+
+VSCode 也提供諸多方便除錯的功能：Network Inspector、Widget Inspector、編譯問題與警告等。
+
+如何運行本地專案：
+1. 去官網下載 IDE。
+2. 下載延伸模組 Flutter。
+3. 開啟手機模擬器(Android 或 iOS 均可)或是以 iPhone 等裝置連接電腦，確認下方提示列的裝置按鈕顯示的是你想要進行除錯的平台，如果不是的話也可以點擊按鈕切換成其他裝置。
+5. 點擊上方工具列，選擇 **執行 > 啟動偵錯**，等待 Flutter 啟動執行。
+
+以上就是最基本的環境設定，除錯工具的使用方式可以自己爬文研究一下。
+
 ### 參考
 
-[Flutter - get started](https://flutter.dev/docs/get-started/install/macos)
-[Android Studio](https://developer.android.com/studio)
+* [Flutter - get started](https://flutter.dev/docs/get-started/install/macos)
+* [Android Studio](https://developer.android.com/studio)
+
 
 ###### tags: `Flutter`
 
-
