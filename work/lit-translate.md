@@ -119,7 +119,7 @@ export class Bundle extends LitElement {
     html`
       <div class="bundle__header">
         <p class="bundle__summary">
-          ${translate('cui_bundle.hdr-mission_running_or_end', {
+          ${translate('bundle.hdr-mission', {
             totalCount: this.totalCount,
             completedCount: this.completedCount,
           })}
