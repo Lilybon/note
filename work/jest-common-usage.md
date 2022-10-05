@@ -6,19 +6,19 @@ To reduce the pain and writing unit test in an efficient way, here are some comm
 
 ### Jest
 
-Q: How to mock **window**?
+Q: How to mock **window**?<br/>
 A:
 ```javascript
 // TODO
 ```
 
-Q: If there are multiple test cases in a simular pattern, how do you test all of them?
+Q: If there are multiple test cases in a simular pattern, how do you test all of them?<br/>
 A:
 ```javascript
 // TODO
 ```
 
-Q: How to end up all promises in jest?
+Q: How to end up all promises in jest?<br/>
 A:
 ```javascript
 import flushPromises from 'flush-promises'
@@ -30,7 +30,7 @@ it('should end all promises', async () => {
 })
 ```
 
-Q: How to mock third party **ES Module**?
+Q: How to mock third party **ES Module**?<br/>
 A:
 ```javascript
 jest.mock('', () => ({
@@ -43,7 +43,8 @@ jest.mock('', () => ({
 ```
 
 ### Vue Test Util
-Q: How to mock **router**？
+
+Q: How to mock **router**？<br/>
 A: 
 ```javascript
 // If your code has some router methods such as pop and replace, mock it with jest.fn is fine.
@@ -63,7 +64,7 @@ const wrapper = shallowMount(Foo, {
 })
 ```
 
-Q: How to mock **route**？
+Q: How to mock **route**？<br/>
 A:
 ```javascript
 const mockRoute = {
@@ -82,7 +83,7 @@ const wrapper = shallowMount(Foo, {
 })
 ```
 
-Q: How to mock **next** function in **beforeRouteLeave**?
+Q: How to mock **next** function in **beforeRouteLeave**?<br/>
 A:
 ```javascript
 it('should trigger next function in some condition', () => {
@@ -94,7 +95,7 @@ it('should trigger next function in some condition', () => {
 
 ```
 
-Q: How to get/set **data** in **wrapper**?
+Q: How to get/set **data** in **wrapper**?<br/>
 A:
 ```javascript
 it('should set hello to world', async () => {
@@ -110,7 +111,8 @@ it('should set hello to world', async () => {
 })
 ```
 
-Q: How to mock `vue-i18n`?
+Q: How to mock `vue-i18n`?<br/>
+A:
 ```javascript
 const localVue = createLocalVue()
 
@@ -128,7 +130,7 @@ const wrapper = shallowMount(Foo, {
 })
 ```
 
-Q: How to test a **dialog** called by **plugin method**?
+Q: How to test a **dialog** called by **plugin method**?<br/>
 A: Because it's general to see that a dialog called by plugin method is a **Vue** instance seperated with our **App** instance, to access the instance, there is a hacky method. Take **bootstrap-vue** as example, we should realize what **DOM structure** the dialog is by reading the third party **repo** source code, get `__vue__` property in the dialog **DOM**, and then use `createWrapper` method to generate a new **wrapper**。
 ```javascript
 const localVue = createLocalVue()
