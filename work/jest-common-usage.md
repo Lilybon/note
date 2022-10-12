@@ -17,7 +17,17 @@ Q: If there are multiple test cases in a simular pattern, how do you test all of
 A:
 
 ```javascript
-// TODO
+const testCases = [
+  { input: 1, output: 1 },
+  { input: 2, output: 2 },
+]
+it.each(testCases)(
+  'should return $output if input is $input',
+  ({ input, output }) => {
+    const fn = (v) => v
+    expect(fn(input)).toBe(output)
+  }
+)
 ```
 
 Q: How to end up all promises in jest?<br/>
@@ -37,12 +47,15 @@ Q: How to mock third party **ES Module**?<br/>
 A:
 
 ```javascript
-jest.mock('', () => ({
-  // TODO
-}))
-
-jest.mock('', () => ({
-  // TODO
+jest.mock('lodash-es', () => ({
+  uniqueId: jest.fn((prefix) => {
+    let counter = 0
+    const getId = () => {
+      counter++
+      return prefix + counter
+    }
+    return getId()
+  }),
 }))
 ```
 
@@ -90,7 +103,7 @@ const wrapper = shallowMount(Foo, {
 ```
 
 Q: How to mock **next** function in **beforeRouteLeave**?<br/>
-A:
+A: Use a `jest.fn` to trigger call for `wrapper.vm`.
 
 ```javascript
 it('should trigger next function in some condition', () => {
@@ -119,13 +132,21 @@ it('should set hello to world', async () => {
 ```
 
 Q: How to mock `vue-i18n`?<br/>
-A:
+A: Add a locale object if you access the i18n object directly, and add `$t` for mocks for component to render i18n keys.
 
 ```javascript
 const localVue = createLocalVue()
 
-jest.mock('', () => ({
-  // TODO
+// If your code is invloved with i18n instance, mock it with fake object
+jest.mock('@/locales', () => ({
+  const locale = 'zh-CN'
+  return {
+    t: jest.fn(),
+    locale,
+    messages: {
+      [locale]: {}
+    }
+  }
 }))
 
 const wrapper = shallowMount(Foo, {
@@ -135,6 +156,21 @@ const wrapper = shallowMount(Foo, {
       $t: jest.fn((key) => key),
     },
   },
+})
+```
+
+Q: How to interfere with component methods?<br/>
+A: Use `spyOn` for specific instance methods before `shallowMount`.
+
+```javascript
+it('should return "You\'re god damn right!"', () => {
+  jest
+    .spyOn(Foo.methods, 'youAreGodDamnRight')
+    .mockImplementation(() => "You're god damn right!")
+  const wrapper = shallowMount(Foo, {
+    // ...
+  })
+  expect(wrapper.vm.youAreGodDamnRight()).toBe("You're god damn right!")
 })
 ```
 
