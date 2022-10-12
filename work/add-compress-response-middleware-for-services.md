@@ -1,6 +1,6 @@
 # Add Compress Response Middleware for Services
 
-After sharing [Reduce Initial Bundle Size for CMS](https://hackmd.io/@lilybon/reduce-initial-bundle-size-for-cms) with my teammates, TODO
+After sharing [Reduce Initial Bundle Size for CMS](https://hackmd.io/@lilybon/reduce-initial-bundle-size-for-cms) with my teammates, my team lead finds out the way to add compress response middleware for gzip content encoding. In this method, we don't need to add [CompressionWrbpackPlugin](https://webpack.js.org/plugins/compression-webpack-plugin/) to generate `.gz` file or add [compression module](https://expressjs.com/zh-tw/advanced/best-practice-performance.html) in our express server. Just add a configuration for [Traefik middleware](https://doc.traefik.io/traefik/middlewares/overview/). Here are simple steps below.
 
 ### 1. Add Middleware
 
