@@ -1,6 +1,6 @@
-# GraphViz
+# Graphviz
 
-## What is GraphViz?
+## What is Graphviz?
 
 > Graphviz is open source graph visualization software. Graph visualization is a way of representing structural information as diagrams of abstract graphs and networks.
 
@@ -362,7 +362,7 @@ digraph {
 
 ## Reference
 
-- [GraphViz](https://www.graphviz.org/)
+- [Graphviz](https://www.graphviz.org/)
 - [wikipedia - Graphviz](https://zh.wikipedia.org/zh-tw/Graphviz)
 - [wikipedia - DOT Language](https://zh.wikipedia.org/zh-tw/DOT%E8%AF%AD%E8%A8%80)
 - [wikiwand - DOT Language](<https://www.wikiwand.com/en/DOT_(graph_description_language)#introduction>)
@@ -371,4 +371,4 @@ digraph {
 - [codesandbox - dag-viewer-forked-wl185q](https://codesandbox.io/s/dag-viewer-forked-wl185q?file=/package.json:138-149)
 - [Graphviz Visual Editor](http://magjac.com/graphviz-visual-editor/)
 
-###### tags: `Work` `GraphViz` `DOT`
+###### tags: `Work` `Graphviz` `DOT`
