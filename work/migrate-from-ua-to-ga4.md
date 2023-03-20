@@ -112,3 +112,5 @@
 - [[GA4] Add a Google Analytics 4 property (to a site that already has Analytics)](https://support.google.com/analytics/answer/9744165#zippy=%2Cin-this-article)
 - [[GA4] Setup Assistant](https://support.google.com/analytics/answer/10312255)
 - [[GA4] Navigate to your account and property](https://support.google.com/analytics/answer/12813202)
+
+###### tags: `Work` `Google Analytics 4` `Gtag`
