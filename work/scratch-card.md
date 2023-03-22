@@ -168,9 +168,9 @@ export default defineComponent({
                         Math.floor(quotient / pixelsPerSubEdge) * SUB_EDGE_PER_EDGE +
                         Math.floor(remainder / pixelsPerSubEdge)
 
-                    counts[INDEX_OF_ALL_PIXELS].allPixels++
+                    counts[INDEX_OF_ALL_PIXELS]++
                     if (alpha <= TRANSPARENT_ALPHA_TRESHOLD) {
-                      counts[INDEX_OF_TRANSPARENT_PIXELS].transparentPixels++
+                      counts[INDEX_OF_TRANSPARENT_PIXELS]++
                     }
 
                     return counts
