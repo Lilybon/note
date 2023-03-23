@@ -131,30 +131,22 @@ export default defineComponent({
         const context = scratchCanvas.value.getContext('2d')!
         const imageData: Ref<> = context.getImageData(0, 0, scratchCanvas.width, scratchCanvas.height)
 
+        // Step 3
+
         // Data is stored as a one-dimensional array in the RGBA order, with integer values between 0 and 255 (inclusive)
         const RGBA_LENGTH = 4
-
-        // Alpha treshold to judege whether an alpha value is transparent or not
-        const TRANSPARENT_ALPHA_TRESHOLD = 75
-
-        // Ratio threshold to judge whether a grid is opened
-        const OPEN_RATIO_TRESHOLD = 0.5
-
-        const SUB_EDGE_PER_EDGE = 3
-
-        const INDEX_OF_TRANSPARENT_PIXELS = 0
-
-        const INDEX_OF_ALL_PIXELS = 1
-
-        // Step 3
         const alphas = imageData.data.filter((_item, index) => (index + 1) % RGBA_LENGTH === 0)
 
-        // Since image is square, use sqrt to get edge width
+        const SUB_EDGE_PER_EDGE = 3
         const pixelsPerEdge = Math.sqrt(alphas.length)
-
-        // Since grid is 3 * 3, divide 3 to get sub edge width
         const pixelsPerSubEdge = pixelsPerEdge / SUB_EDGE_PER_EDGE
 
+        const INDEX_OF_TRANSPARENT_PIXELS = 0
+        const INDEX_OF_ALL_PIXELS = 1
+        // Alpha treshold to judege whether an alpha value is transparent or not
+        const TRANSPARENT_ALPHA_TRESHOLD = 75
+        // Ratio threshold to judge whether a grid is opened
+        const OPEN_RATIO_TRESHOLD = 0.5
         const isRewardOpen = alphas
             // Step 4
             .reduce(
